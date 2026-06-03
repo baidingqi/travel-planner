@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌍 智能旅行规划助手</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== 顶部导航 ===== -->
+<header class="app-header">
+  <span class="logo">🌍 旅行规划助手</span>
+  <nav class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="plan">📝 规划行程</button>
+    <button class="nav-tab" data-tab="history">📋 我的行程</button>
+  </nav>
+</header>
+
+<main class="app-main">
+
+  <!-- ===== 页面1：行程规划表单 ===== -->
+  <section id="page-plan" class="page active">
+
+    <!-- 出发地/目的地 -->
+    <div class="form-section">
+      <div class="section-title">📍 选择城市</div>
+      <div class="city-row">
+        <div class="city-field">
+          <label>出发地</label>
+          <input type="text" id="departure" placeholder="从哪里出发？" autocomplete="off">
+          <div class="suggestions" id="depSuggestions"></div>
+        </div>
+        <button class="swap-btn" id="swapBtn" title="交换">⇅</button>
+        <div class="city-field">
+          <label>目的地</label>
+          <input type="text" id="destination" placeholder="想去哪里？" autocomplete="off">
+          <div class="suggestions" id="destSuggestions"></div>
+        </div>
+      </div>
+      <div class="hot-cities">
+        <span class="hot-label">🔥 热门:</span>
+        <span class="hot-tag" data-city="北京">北京</span>
+        <span class="hot-tag" data-city="上海">上海</span>
+        <span class="hot-tag" data-city="广州">广州</span>
+        <span class="hot-tag" data-city="成都">成都</span>
+        <span class="hot-tag" data-city="杭州">杭州</span>
+        <span class="hot-tag" data-city="西安">西安</span>
+        <span class="hot-tag" data-city="重庆">重庆</span>
+        <span class="hot-tag" data-city="厦门">厦门</span>
+      </div>
+    </div>
+
+    <!-- 出行方式 -->
+    <div class="form-section">
+      <div class="section-title">🚀 出行方式</div>
+      <div class="mode-group" id="modeGroup">
+        <button class="mode-btn" data-mode="flight">✈️ 飞机</button>
+        <button class="mode-btn" data-mode="train">🚄 火车</button>
+        <button class="mode-btn" data-mode="drive">🚗 自驾</button>
+      </div>
+    </div>
+
+    <!-- 日期选择 -->
+    <div class="form-section">
+      <div class="section-title">📅 出行时间</div>
+      <div class="date-row">
+        <div class="date-field">
+          <label>出发日期</label>
+          <input type="date" id="startDate">
+        </div>
+        <span class="date-arrow">→</span>
+        <div class="date-field">
+          <label>返回日期</label>
+          <input type="date" id="endDate">
+        </div>
+      </div>
+      <div class="trip-days" id="tripDays" style="display:none">
+        预计行程 <strong id="daysNum">0</strong> 天 <strong id="nightsNum">0</strong> 晚
+      </div>
+    </div>
+
+    <!-- 景点类型 -->
+    <div class="form-section">
+      <div class="section-title">🎯 喜欢的景点类型 <small>(可多选)</small></div>
+      <div class="type-tags" id="typeTags">
+        <button class="type-tag" data-type="nature">🌲 自然风光</button>
+        <button class="type-tag" data-type="history">🏛️ 历史人文</button>
+        <button class="type-tag" data-type="food">🍜 美食小吃</button>
+        <button class="type-tag" data-type="shopping">🛍️ 购物商圈</button>
+        <button class="type-tag" data-type="entertain">🎭 娱乐休闲</button>
+        <button class="type-tag" data-type="family">👨‍👩‍👧 亲子同游</button>
+        <button class="type-tag" data-type="outdoor">🏔️ 户外运动</button>
+      </div>
+    </div>
+
+    <!-- 生成按钮 -->
+    <button class="btn-generate" id="btnGenerate">✨ 智能生成行程</button>
+
+    <!-- 错误提示 -->
+    <div class="error-msg" id="formError" style="display:none"></div>
+  </section>
+
+  <!-- ===== 页面2：加载进度 ===== -->
+  <section id="page-loading" class="page">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div class="loading-title" id="loadingTitle">正在生成您的专属行程...</div>
+      <div class="loading-steps" id="loadingSteps">
+        <div class="step" data-step="poi">○ 搜索目的地景点</div>
+        <div class="step" data-step="route">○ 计算出行路线</div>
+        <div class="step" data-step="generate">○ 智能生成行程方案</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 页面3：行程展示 ===== -->
+  <section id="page-itinerary" class="page">
+    <!-- 摘要卡片 -->
+    <div class="summary-card" id="summaryCard"></div>
+
+    <!-- 天数 Tab -->
+    <div class="day-tabs" id="dayTabs"></div>
+
+    <!-- 每日时间线 -->
+    <div class="day-content" id="dayContent"></div>
+
+    <!-- 底部操作 -->
+    <div class="bottom-actions">
+      <button class="btn-action" id="btnRegenerate">🔄 重新规划</button>
+      <button class="btn-action" id="btnSave">❤️ 收藏行程</button>
+    </div>
+  </section>
+
+  <!-- ===== 页面4：历史行程 ===== -->
+  <section id="page-history" class="page">
+    <div class="history-list" id="historyList">
+      <div class="empty-state">📭 还没有保存的行程</div>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

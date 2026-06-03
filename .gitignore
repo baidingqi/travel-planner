@@ -1,0 +1,4 @@
+node_modules/
+travel-build/
+*.zip
+.env
